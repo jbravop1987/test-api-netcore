@@ -1,14 +1,30 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using test_api.Data;
 using test_api.Data.Repositories;
 using test_api.Data.UnitOfWork;
-using test_api.Services;
 using test_api.Middleware;
+using test_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --- INICIO DE LA CONFIGURACIÓN NECESARIA ---
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    // Indica a la aplicación que confíe en los encabezados X-Forwarded-For 
+    // (IP del cliente) y X-Forwarded-Proto (esquema HTTP/HTTPS).
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Ya que Dokploy/Traefik se ejecutan en una red de contenedores interna con 
+    // IPs que no son conocidas explícitamente, limpiamos las listas. 
+    // Esto es común y necesario en entornos PaaS y Docker.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+// --- FIN DE LA CONFIGURACIÓN NECESARIA ---
 
 // Add services to the container.
 builder.Services.AddControllers();
