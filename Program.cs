@@ -101,6 +101,10 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// 3. HABILITACIÓN DEL MIDDLEWARE (¡CRÍTICO!)
+// Debe ir ANTES de cualquier redirección, routing, o autenticación.
+app.UseForwardedHeaders();
+
 // Middleware de manejo global de excepciones
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
